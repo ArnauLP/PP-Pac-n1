@@ -43,19 +43,19 @@ void donation_parse(tDonation *donation, tCSVEntry entry) {
 
     char *buffer = malloc(512);
     int lenght = 50;
-    csv_getAsString(entry,0, buffer,lenght);
-    date_parse(&donation->date ,  buffer);
+    csv_getAsString(entry, 0, buffer, lenght);
+    date_parse(&donation->date, buffer);
 
-    csv_getAsString(entry,1, buffer,lenght);
-    strcpy(donation->document ,  buffer);
+    csv_getAsString(entry, 1, buffer, lenght);
+    strcpy(donation->document, buffer);
 
-    csv_getAsString(entry,2, buffer,3);
-    strcpy(donation->ngo , buffer);
+    csv_getAsString(entry, 2, buffer, 3);
+    strcpy(donation->ngo, buffer);
 
-    csv_getAsString(entry,3, buffer,lenght);
-    strcpy( donation->projectCode ,  buffer);
+    csv_getAsString(entry, 3, buffer, lenght);
+    strcpy(donation->projectCode, buffer);
 
-    donation->amount = csv_getAsReal(entry,4);
+    donation->amount = csv_getAsReal(entry, 4);
 }
 
 // Add a new donation
@@ -67,32 +67,40 @@ void donationData_add(tDonationData *data, tDonation donation) {
 
     // buscar lloc d'insersió
     while (i < data->n && !trobat && !repetit) {
-        if (strcmp( data->donationsTable[i].projectCode , donation.projectCode) &&
+        if (strcmp(data->donationsTable[i].projectCode, donation.projectCode) ==0 &&
             date_equals(data->donationsTable[i].date, donation.date) &&
-            data->donationsTable[i].document == donation.document) {
+                strcmp(data->donationsTable[i].document , donation.document)==0) {
             repetit = true;
-        } else if (strcmp(data->donationsTable[i].projectCode , donation.projectCode)>0) {
+        } else if (strcmp(data->donationsTable[i].projectCode, donation.projectCode) > 0) {
             trobat = true;
         } else {
             i++;
         }
     }
-    if (trobat && !repetit) {
+    if (!repetit) {
         // moure taula
-        for (int j = data->n; j <= i; ++j) {
+        for (int j = data->n; j > i; --j) {
             data->donationsTable[j] = data->donationsTable[j - 1];
         }
         // inserrir elem a pos i
         data->donationsTable[i] = donation;
+        data->n++;
     }
 }
 
 // Get a donation
 void donationData_get(tDonationData data, int index, char *buffer) {
     // TODO
-    //donation_parse(&data.donationsTable[index],)
+    //donation_parse(&data.donationsTable[index],
+//    printf("%d/%d/%d;%s;%s;%s;%0.1lf", data.donationsTable[index].date.day, data.donationsTable[index].date.month,
+//           data.donationsTable[index].date.year,
+//           data.donationsTable[index].document, data.donationsTable[index].ngo, data.donationsTable[index].projectCode,
+//           data.donationsTable[index].amount);
 
-    //sprintf();
+    sprintf(buffer,"%d/%d/%d;%s;%s;%s;%0.2lf", data.donationsTable[index].date.day, data.donationsTable[index].date.month,
+            data.donationsTable[index].date.year,
+            data.donationsTable[index].document, data.donationsTable[index].ngo, data.donationsTable[index].projectCode,
+            data.donationsTable[index].amount);
 }
 
 // Remove a donation
@@ -103,8 +111,9 @@ void donationData_del(tDonationData *data, tDate date, char projectCode[], char 
     int i = 0;
     //buscar la pos a elminar
     while (i < data->n && !trobat) {
-        if (strcmp( data->donationsTable[i].projectCode , projectCode )&& date_equals(data->donationsTable[i].date, date) &&
-                                                  strcmp(data->donationsTable[i].document, document)) {
+        if (strcmp(data->donationsTable[i].projectCode, projectCode) &&
+            date_equals(data->donationsTable[i].date, date) &&
+            strcmp(data->donationsTable[i].document, document)) {
             trobat = true;
             pos = i;
         } else {
